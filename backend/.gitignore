@@ -1,0 +1,5 @@
+venv/
+env/
+crederails-technical-assessment.code-workspace
+__pycache__/
+
