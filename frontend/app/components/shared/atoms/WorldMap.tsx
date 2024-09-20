@@ -1,5 +1,5 @@
+import { World } from "@/app/components/shared/atoms/Icon";
 import Image from "next/image";
-import { Background, LogoWord, World } from "@/app/components/shared/atoms/Icon";
 
 export default function WorldMapSvg() {
     return (

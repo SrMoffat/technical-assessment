@@ -1,5 +1,6 @@
-import WorldMapSvg from './components/shared/atoms/WorldMap';
-import { LandingPageExtra, LandingPageFooter, LandingPageHeader, LandingPageService } from './components/specific/landing';
+import WorldMapSvg from '@/app/components/shared/atoms/WorldMap';
+import { LandingPageExtra, LandingPageService } from '@/app/components/specific/landing';
+import UnauthenticatedLayout from '@/app/layouts/public';
 
 function LandingPageContent() {
   const items = [
@@ -31,17 +32,6 @@ function LandingPageContent() {
       </div>
     </main>
 
-  )
-}
-
-function UnauthenticatedLayout(props: any) {
-  const { children, hasHero } = props
-  return (
-    <>
-      <LandingPageHeader hasHero={hasHero} />
-      {children}
-      <LandingPageFooter />
-    </>
   )
 }
 
