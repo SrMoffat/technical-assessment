@@ -1,15 +1,36 @@
 "use client"
 import { InboxOutlined } from '@ant-design/icons';
-import type { UploadProps } from 'antd';
+import type { UploadProps, GetProp } from 'antd';
 import { Flex, message, Typography, Upload } from 'antd';
 
+const ALLOWED_UPLOAD_MIME_TYPES = ['text/csv']
+
 const { Dragger } = Upload;
+
+type FileType = Parameters<GetProp<UploadProps, 'beforeUpload'>>[0];
+
+const beforeUpload = (file: FileType) => {
+    const type = file?.type
+    const size = file?.size
+    const passesType = ALLOWED_UPLOAD_MIME_TYPES?.includes(type)
+    const passesSize = size / 1024 / 1024 < 2
+
+    if (!passesType) {
+        // To Do: Use ALLOWED_UPLOAD_MIME_TYPES for message
+        message.error('You can only upload CSV files!');
+    } else if (!passesSize) {
+        message.error('File must smaller than 2MB!');
+    }
+
+    return passesType && passesSize
+};
 
 export default function FileUploader({ title, ctaText, ctaDescription, onChange }: any) {
     const props: UploadProps = {
         name: 'file',
         multiple: false,
         // action: '/api/upload',
+        beforeUpload,
         onChange,
         onDrop(e) {
             console.log('Dropped files', e.dataTransfer.files);
