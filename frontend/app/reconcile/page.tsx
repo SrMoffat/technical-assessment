@@ -3,7 +3,8 @@ import { CustomTransfer } from '@/app/components/shared/atoms';
 import { FileUploader, NavigationTabs } from '@/app/components/specific/dashboard';
 import { ProfileForm } from '@/app/components/specific/profile';
 import { PAGES, useNavigationContext } from '@/app/providers/NavigationProvider';
-import { Avatar, Button, Flex, Layout, Typography } from 'antd';
+import { Alert, Avatar, Button, Flex, Layout, Typography, Spin } from 'antd';
+import { useState, useEffect } from 'react';
 
 const { Content } = Layout;
 
@@ -27,19 +28,101 @@ function ProfileDetails() {
 }
 
 function Dashboard() {
+    const [sourceFile, setSourceFile] = useState<any>()
+    const [targetFile, setTargetFile] = useState<any>()
+    const [isReconciling, setIsReconcilling] = useState<boolean>(false)
+
+    const [sourceData, setSourceData] = useState<any[]>([])
+    const [targetData, setTargetData] = useState<any[]>([])
+
+
+    const handleSourceFile = async (details: any) => {
+        try {
+            const file = details?.file
+
+            setSourceFile(file)
+            const fileStatus = file?.status
+
+        } catch (error: any) {
+            console.log("Error Uploading file source", error)
+
+        }
+    }
+    const handleTargetFile = async (details: any) => {
+        try {
+            const file = details?.file
+            const fileStatus = file?.status
+
+            setTargetFile(file)
+
+        } catch (error: any) {
+            console.log("Error Uploading file target", error)
+
+        }
+    }
+
+
+    useEffect(() => {
+        if (sourceFile && targetFile) {
+            setIsReconcilling(true)
+            console.log("Detials Here", {
+                sourceFile,
+                targetFile
+            })
+        }
+    }, [sourceFile, targetFile])
+
+
+    const sourceEmpty = !Boolean(sourceData?.length)
+    const targetEmpty = !Boolean(targetData?.length)
+
+    const title = !sourceFile && targetFile
+        ? "Upload Source Records"
+        : !targetFile && sourceFile
+            ? "Upload Target Records"
+            : "Upload Records"
+    const description = !sourceFile && targetFile
+        ? "Kindly upload source records to start the reconciliation process."
+        : !targetFile && sourceFile
+            ? "Kindly upload target records to start the reconciliation process."
+            : "Kindly upload source and target records to start the reconciliation process."
+
+    const hasData = sourceFile && targetFile //!sourceEmpty && !targetEmpty
     return (
         <Flex className="flex-col">
             <NavigationTabs />
             <Flex className="justify-between mt-6 gap-6">
-                <FileUploader title="Source Records" ctaText="Click or drag file to this area to upload" ctaDescription="Upload your source records file." />
-                <FileUploader title="Target Records" ctaText="Click or drag file to this area to upload" ctaDescription="Upload your target records file." />
-            </Flex>
-            <Flex className="mt-6">
-                <CustomTransfer
-                    showSearch
-                    showSelectAll={false}
+                <FileUploader
+                    title="Source Records"
+                    onChange={handleSourceFile}
+                    ctaText="Click or drag file to this area to upload"
+                    ctaDescription="Upload your source records file."
+                />
+                <FileUploader
+                    title="Target Records"
+                    onChange={handleTargetFile}
+                    ctaText="Click or drag file to this area to upload"
+                    ctaDescription="Upload your target records file."
                 />
             </Flex>
+            {hasData ? (
+                <Spin spinning={isReconciling} tip="Reconciling records ...">
+                    <Flex className="mt-6">
+                        <CustomTransfer
+                            showSearch
+                            data={[]}
+                            showSelectAll={false}
+                        />
+                    </Flex>
+                </Spin>
+            ) : <Flex className="justify-center mt-6">
+                <Alert
+                    message={title}
+                    description={description}
+                    type="info"
+                    showIcon
+                />
+            </Flex>}
         </Flex>
     )
 }
