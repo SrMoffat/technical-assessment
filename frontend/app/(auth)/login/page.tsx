@@ -1,4 +1,5 @@
 "use client"
+import { CustomLink } from '@/app/components/shared/atoms';
 import { LockOutlined, MailOutlined } from "@ant-design/icons";
 import {
     Button,
@@ -9,12 +10,9 @@ import {
     Input,
     Typography
 } from 'antd';
-import { CustomLink } from '../../components/shared/atoms';
 
 
 function LoginForm() {
-    const [form] = Form.useForm();
-
     const onFinish = (values: any) => {
         console.log('Handler user registration: ', values);
     };
@@ -39,8 +37,6 @@ function LoginForm() {
             icon: <LockOutlined />
         }
     ]
-
-
 
     return (
         <Form
@@ -77,14 +73,13 @@ function LoginForm() {
                 </Button>
             </Form.Item>
         </Form>
-
     )
 }
 
 function LoginPageContent() {
     return (
-        <Flex className="h-[calc(100vh-24rem)] my-16 justify-center">
-            <Card className="w-1/3">
+        <Flex className="mt-16 mb-48 justify-center">
+            <Card>
                 <Typography.Title level={4} className="text-center mb-12">Login</Typography.Title>
                 <LoginForm />
             </Card>

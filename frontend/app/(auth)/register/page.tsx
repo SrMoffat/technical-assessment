@@ -1,5 +1,6 @@
 "use client"
 
+import { CustomLink } from '@/app/components/shared/atoms';
 import { LockOutlined, MailOutlined, UserOutlined } from "@ant-design/icons";
 import {
     Button,
@@ -10,12 +11,9 @@ import {
     Input,
     Typography
 } from 'antd';
-import { CustomLink } from '../../components/shared/atoms';
 
 
 function RegisterForm() {
-    const [form] = Form.useForm();
-
     const onFinish = (values: any) => {
         console.log('Handler user registration: ', values);
     };
@@ -102,8 +100,8 @@ function RegisterForm() {
 
 function RegisterPageContent() {
     return (
-        <Flex className="h-[calc(100vh-24rem)] my-16 justify-center">
-            <Card className="w-1/3">
+        <Flex className=" my-16 justify-center">
+            <Card>
                 <Typography.Title level={4} className="text-center mb-12">Create Account</Typography.Title>
                 <RegisterForm />
             </Card>
