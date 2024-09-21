@@ -1,8 +1,10 @@
+import "@/app/globals.css";
+import { ThemeProvider } from '@/app/providers';
+import { NavigationContextProvider } from '@/app/providers/NavigationProvider';
+import { AntdRegistry } from '@ant-design/nextjs-registry';
 import type { Metadata } from "next";
 import localFont from "next/font/local";
-import "@/app/globals.css";
-import { AntdRegistry } from '@ant-design/nextjs-registry';
-import ThemeProvider from "@/app/providers/ThemeProvider";
+
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -32,7 +34,9 @@ export default function RootLayout({
       >
         <AntdRegistry>
           <ThemeProvider>
-            {children}
+            <NavigationContextProvider>
+              {children}
+            </NavigationContextProvider>
           </ThemeProvider>
         </AntdRegistry>
       </body>

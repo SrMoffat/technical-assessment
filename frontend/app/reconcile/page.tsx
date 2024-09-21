@@ -1,12 +1,7 @@
 "use client"
-import { LogoWordComponent, NavBar, SideBar } from '@/app/components/shared/atoms';
 import { ProfileForm } from '@/app/components/specific/profile';
-import { AreaChartOutlined, DownOutlined, InboxOutlined, LogoutOutlined, UserOutlined } from '@ant-design/icons';
-import type { MenuProps, UploadProps } from 'antd';
-import { Avatar, Breadcrumb, Button, Dropdown, Flex, Layout, Menu, message, Segmented, theme, Typography, Upload } from 'antd';
-import React, { useState } from 'react';
-
-
+import { PAGES, useNavigationContext } from '@/app/providers/NavigationProvider';
+import { InboxOutlined } from '@ant-design/icons';
 import type { DragEndEvent } from '@dnd-kit/core';
 import { PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import {
@@ -14,12 +9,9 @@ import {
     useSortable
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import type { GetProp, TableColumnsType, TableProps, TransferProps } from 'antd';
-import { Table, Transfer, Tag } from 'antd';
-import Breadcrumbs from '../components/shared/atoms/Breadcrumbs';
-
-
-
+import type { GetProp, TableColumnsType, TableProps, TransferProps, UploadProps } from 'antd';
+import { Avatar, Button, Flex, Layout, message, Segmented, Table, Tag, Transfer, Typography, Upload } from 'antd';
+import React, { useState } from 'react';
 
 const { Dragger } = Upload;
 
@@ -318,19 +310,10 @@ function Dashboard() {
 }
 
 export default function ReconcilePage() {
+    const { current } = useNavigationContext()
 
-    const onClick: MenuProps['onClick'] = ({ key }) => {
-        const isLogout = key === "logout"
-        // setCurrent(key)
-
-        if (isLogout) {
-            message.error(`Click on item ${key}`);
-        } else {
-            message.info(`Click on item ${key}`);
-        }
-    };
-
-
+    const isDashboard = current === PAGES.DASHBOARD
+    const isProfile = current === PAGES.PROFILE
 
     return (
         <Content
@@ -342,14 +325,12 @@ export default function ReconcilePage() {
                 // borderRadius: borderRadiusLG,
             }}
         >
-            <Dashboard />
-            <ProfileDetails />
-            {/* {isDashbaoard && (
+            {isDashboard && (
                 <Dashboard />
             )}
             {isProfile && (
                 <ProfileDetails />
-            )} */}
+            )}
         </Content>
     )
 }

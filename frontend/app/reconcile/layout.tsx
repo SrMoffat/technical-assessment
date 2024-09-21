@@ -1,24 +1,13 @@
 "use client"
-
 import { NavBar, SideBar } from '@/app/components/shared/atoms';
 import Breadcrumbs from '@/app/components/shared/atoms/Breadcrumbs';
+import { useNavigationContext } from '@/app/providers/NavigationProvider';
 import { Layout } from 'antd';
-import { useState } from 'react';
 
 export default function ReconcilePageLayout(props: any) {
     const { children } = props
 
-    const [current, setCurrent] = useState('dashboard');
-
-    const isDashbaoard = current === "dashboard"
-    const isProfile = current === "profile"
-
-    const breadcrumbs = isDashbaoard
-        ? ["Dashboard"]
-        : isProfile
-            ? ["Profile"]
-            : []
-
+    const { current, breadcrumbs, setCurrent } = useNavigationContext()
     return (
         <Layout>
             <NavBar />
