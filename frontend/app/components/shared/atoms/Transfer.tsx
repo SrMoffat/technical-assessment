@@ -22,7 +22,9 @@ interface DataType {
 }
 
 
-interface TableTransferProps extends TransferProps<TransferItem> {}
+interface TableTransferProps extends TransferProps<TransferItem> {
+    data: any;
+}
 
 export default function TableTransfer(props: TableTransferProps) {
     const [targetKeys, setTargetKeys] = useState<TransferProps['targetKeys']>([]);
@@ -55,11 +57,11 @@ export default function TableTransfer(props: TableTransferProps) {
         },
     ];
 
-    const { ...restProps } = props;
+    const { data, ...restProps } = props;
     return (
         <Transfer style={{ width: '100%' }} {...restProps}
             onChange={onChange}
-            dataSource={mockData}
+            dataSource={data}
             targetKeys={targetKeys}
             filterOption={filterOption}
         >
