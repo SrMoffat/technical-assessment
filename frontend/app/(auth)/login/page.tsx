@@ -1,7 +1,5 @@
 "use client"
-
-import UnauthenticatedLayout from '@/app/layouts/public';
-import { LockOutlined, MailOutlined, UserOutlined } from "@ant-design/icons";
+import { LockOutlined, MailOutlined } from "@ant-design/icons";
 import {
     Button,
     Card,
@@ -11,35 +9,17 @@ import {
     Input,
     Typography
 } from 'antd';
-import { CustomLink } from '../components/shared/atoms';
+import { CustomLink } from '../../components/shared/atoms';
 
 
-function RegisterForm() {
+function LoginForm() {
     const [form] = Form.useForm();
 
     const onFinish = (values: any) => {
         console.log('Handler user registration: ', values);
     };
 
-    const regsiterFormFields = [
-        {
-            required: true,
-            name: 'firstName',
-            label: 'First Name',
-            type: 'text',
-            placeholder: 'Enter your first name.',
-            errorMessage: 'First name is required!',
-            icon: <UserOutlined />
-        },
-        {
-            required: true,
-            name: 'lastName',
-            label: 'Last Name',
-            type: 'text',
-            placeholder: 'Enter your last name.',
-            errorMessage: 'Last name is required!',
-            icon: <UserOutlined />
-        },
+    const loginFormFields = [
         {
             required: true,
             name: 'email',
@@ -64,7 +44,7 @@ function RegisterForm() {
 
     return (
         <Form
-            name="register"
+            name="login"
             style={{
                 marginTop: 50,
                 width: '100%',
@@ -73,7 +53,7 @@ function RegisterForm() {
             }}
             onFinish={onFinish}
         >
-            {regsiterFormFields.map((entry) => (
+            {loginFormFields.map((entry) => (
                 <Form.Item
                     hasFeedback
                     name={entry?.name}
@@ -84,16 +64,16 @@ function RegisterForm() {
             ))}
             <Form.Item>
                 <Flex justify="space-between" align="center">
-                    <Form.Item name="terms" valuePropName="checked" noStyle>
-                        <Checkbox>Accept terms and conditions.</Checkbox>
+                    <Form.Item name="rememberMe" valuePropName="checked" noStyle>
+                        <Checkbox>Remember me?.</Checkbox>
                     </Form.Item>
-                    <CustomLink href="/login">Have an account? Login.</CustomLink>
+                    <CustomLink href="/register">Don't have an account? Register.</CustomLink>
                 </Flex>
             </Form.Item>
 
             <Form.Item>
                 <Button block type="primary" htmlType="submit">
-                    Register
+                    Login
                 </Button>
             </Form.Item>
         </Form>
@@ -101,21 +81,20 @@ function RegisterForm() {
     )
 }
 
-function RegisterPageContent() {
+function LoginPageContent() {
     return (
         <Flex className="h-[calc(100vh-24rem)] my-16 justify-center">
             <Card className="w-1/3">
-                <Typography.Title level={4} className="text-center mb-12">Create Account</Typography.Title>
-                <RegisterForm />
+                <Typography.Title level={4} className="text-center mb-12">Login</Typography.Title>
+                <LoginForm />
             </Card>
         </Flex>
     )
 }
 
-export default function RegisterPage() {
+export default function LoginPage() {
     return (
-        <UnauthenticatedLayout hasHero={false}>
-            <RegisterPageContent />
-        </UnauthenticatedLayout>
+        <LoginPageContent />
     )
 }
+

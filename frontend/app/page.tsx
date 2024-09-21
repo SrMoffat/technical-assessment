@@ -1,6 +1,6 @@
+import UnauthenticatedLayout from '@/app/(auth)/layout';
 import WorldMapSvg from '@/app/components/shared/atoms/WorldMap';
 import { LandingPageExtra, LandingPageService } from '@/app/components/specific/landing';
-import UnauthenticatedLayout from '@/app/layouts/public';
 
 function LandingPageContent() {
   const items = [
