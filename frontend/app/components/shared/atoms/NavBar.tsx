@@ -12,7 +12,7 @@ export default function NavBar() {
     const [current, setCurrent] = useState('dashboard');
 
     const {
-        token: { colorBgContainer },
+        token: { colorBgContainer, colorPrimary },
     } = theme.useToken();
 
     const onClick: MenuProps['onClick'] = ({ key }) => {
@@ -53,7 +53,7 @@ export default function NavBar() {
             <LogoWordComponent />
             <Dropdown menu={{ items: profileDropdownItems, onClick }}>
                 <Flex className="gap-2">
-                    <Avatar style={{ verticalAlign: 'middle' }
+                    <Avatar style={{ verticalAlign: 'middle', backgroundColor: colorPrimary, color: "white" }
                     } size="large">
                         A
                     </Avatar>
