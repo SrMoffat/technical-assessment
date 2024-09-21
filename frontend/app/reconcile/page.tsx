@@ -1,5 +1,5 @@
 "use client"
-import { LogoWordComponent } from '@/app/components/shared/atoms';
+import { LogoWordComponent, NavBar, SideBar } from '@/app/components/shared/atoms';
 import { ProfileForm } from '@/app/components/specific/profile';
 import { AreaChartOutlined, DownOutlined, InboxOutlined, LogoutOutlined, UserOutlined } from '@ant-design/icons';
 import type { MenuProps, UploadProps } from 'antd';
@@ -16,6 +16,7 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import type { GetProp, TableColumnsType, TableProps, TransferProps } from 'antd';
 import { Table, Transfer, Tag } from 'antd';
+import Breadcrumbs from '../components/shared/atoms/Breadcrumbs';
 
 
 
@@ -283,27 +284,7 @@ function Dashboard() {
                         </p>
                     </Dragger>
 
-                    {/* <DndContext sensors={sensors} modifiers={[restrictToVerticalAxis]} onDragEnd={onDragEnd} >
-                        <SortableContext
-                            // rowKey array
-                            items={dataSource.map((i) => i.key)}
-                            strategy={verticalListSortingStrategy}
-                        >
-                            <Table
-                                components={
-                                    {
-                                        body: {
-                                            row: Row,
-                                        },
-                                    }
-                                }
-                                className='mt-6'
-                                rowKey="key"
-                                columns={columns}
-                                dataSource={dataSource}
-                            />
-                        </SortableContext>
-                    </DndContext> */}
+
                 </Flex>
                 <Flex className="w-full flex-col gap-2">
                     <Typography.Text>Target Records</Typography.Text>
@@ -317,28 +298,6 @@ function Dashboard() {
                             banned files.
                         </p>
                     </Dragger>
-
-                    {/* <DndContext sensors={sensors} modifiers={[restrictToVerticalAxis]} onDragEnd={onDragEnd} >
-                        <SortableContext
-                            // rowKey array
-                            items={dataSource.map((i) => i.key)}
-                            strategy={verticalListSortingStrategy}
-                        >
-                            <Table
-                                components={
-                                    {
-                                        body: {
-                                            row: Row,
-                                        },
-                                    }
-                                }
-                                rowKey="key"
-                                className='mt-6'
-                                columns={columns}
-                                dataSource={dataSource}
-                            />
-                        </SortableContext>
-                    </DndContext> */}
                 </Flex>
             </Flex>
             <Flex className="mt-6">
@@ -360,15 +319,9 @@ function Dashboard() {
 
 export default function ReconcilePage() {
 
-    const [current, setCurrent] = useState('dashboard');
-
-    const {
-        token: { colorBgContainer, borderRadiusLG },
-    } = theme.useToken();
-
     const onClick: MenuProps['onClick'] = ({ key }) => {
         const isLogout = key === "logout"
-        setCurrent(key)
+        // setCurrent(key)
 
         if (isLogout) {
             message.error(`Click on item ${key}`);
@@ -377,81 +330,26 @@ export default function ReconcilePage() {
         }
     };
 
-    const profileDropdownItems: MenuProps['items'] = [
-        {
-            label: 'Dashboard',
-            key: 'dashboard',
-            icon: <AreaChartOutlined />
-        },
-        {
-            label: 'View Profile',
-            key: 'profile',
-            icon: <UserOutlined />
-        },
-        {
-            label: 'Logout',
-            key: 'logout',
-            icon: <LogoutOutlined />
 
-        }
-    ]
-
-    const isDashbaoard = current === "dashboard"
-    const isProfile = current === "profile"
 
     return (
-        <Layout>
-            <Header
-                className="flex items-center justify-between"
-                style={{ backgroundColor: colorBgContainer }}
-            >
-                <LogoWordComponent />
-                <Dropdown menu={{ items: profileDropdownItems, onClick }}>
-                    <Flex className="gap-2">
-                        <Avatar style={{ verticalAlign: 'middle' }
-                        } size="large">
-                            A
-                        </Avatar>
-                        < DownOutlined />
-                    </Flex>
-                </Dropdown>
-            </Header>
-            <Layout className="h-screen mx-6 my-4">
-                <Sider className="rounded-md px-4" width={300} style={{ background: colorBgContainer }}>
-                    <Menu
-                        mode="inline"
-                        defaultSelectedKeys={['dashboard']}
-                        style={{ borderRight: 0, marginTop: 20 }}
-                        items={profileDropdownItems}
-                        onClick={onClick}
-                    />
-                </Sider>
-                <Layout style={{ padding: '0 24px 24px' }}>
-                    <Breadcrumb style={{ margin: '16px 0' }}>
-                        <Breadcrumb.Item>Home</Breadcrumb.Item>
-                        <Breadcrumb.Item>
-                            {isDashbaoard && "Dashboard"}
-                            {isProfile && "Profile"}
-                        </Breadcrumb.Item>
-                    </Breadcrumb>
-                    <Content
-                        style={{
-                            padding: 24,
-                            margin: 0,
-                            minHeight: 280,
-                            background: colorBgContainer,
-                            borderRadius: borderRadiusLG,
-                        }}
-                    >
-                        {isDashbaoard && (
-                            <Dashboard />
-                        )}
-                        {isProfile && (
-                            <ProfileDetails />
-                        )}
-                    </Content>
-                </Layout>
-            </Layout>
-        </Layout>
+        <Content
+            style={{
+                // padding: 24,
+                // margin: 0,
+                // minHeight: 280,
+                // background: colorBgContainer,
+                // borderRadius: borderRadiusLG,
+            }}
+        >
+            <Dashboard />
+            <ProfileDetails />
+            {/* {isDashbaoard && (
+                <Dashboard />
+            )}
+            {isProfile && (
+                <ProfileDetails />
+            )} */}
+        </Content>
     )
 }
