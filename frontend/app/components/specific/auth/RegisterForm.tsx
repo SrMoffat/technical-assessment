@@ -1,5 +1,4 @@
 "use client"
-
 import { CustomLink } from '@/app/components/shared/atoms';
 import { LockOutlined, MailOutlined, UserOutlined } from "@ant-design/icons";
 import {
@@ -55,8 +54,6 @@ export default
         }
     ]
 
-
-
     return (
         <Form
             name="register"
@@ -66,6 +63,7 @@ export default
                 justifySelf: 'center',
                 alignSelf: 'center'
             }}
+            variant='filled'
             onFinish={onFinish}
         >
             {regsiterFormFields.map((entry) => (

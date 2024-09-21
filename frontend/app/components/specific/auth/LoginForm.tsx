@@ -9,7 +9,6 @@ import {
     Input
 } from 'antd';
 
-
 export default function LoginForm() {
     const onFinish = (values: any) => {
         console.log('Handler user registration: ', values);
@@ -45,6 +44,7 @@ export default function LoginForm() {
                 justifySelf: 'center',
                 alignSelf: 'center'
             }}
+            variant='filled'
             onFinish={onFinish}
         >
             {loginFormFields.map((entry) => (
