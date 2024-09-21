@@ -31,7 +31,6 @@ function LandingPageContent() {
         <LandingPageExtra />
       </div>
     </main>
-
   )
 }
 
