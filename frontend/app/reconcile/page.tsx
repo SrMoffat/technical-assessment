@@ -3,8 +3,10 @@ import { CustomTransfer } from '@/app/components/shared/atoms';
 import { FileUploader, NavigationTabs } from '@/app/components/specific/dashboard';
 import { ProfileForm } from '@/app/components/specific/profile';
 import { PAGES, useNavigationContext } from '@/app/providers/NavigationProvider';
-import { Alert, Avatar, Button, Flex, Layout, Typography, Spin } from 'antd';
+import { Alert, Avatar, Button, Flex, Layout, Typography, Spin, message } from 'antd';
 import { useState, useEffect } from 'react';
+import { parse } from 'csv-parse';
+import { parseCsvToJson } from '../utils';
 
 const { Content } = Layout;
 
@@ -61,13 +63,46 @@ function Dashboard() {
         }
     }
 
+    const sendFiles = async ({ target, source }: { target: any; source: any }) => {
+        try {
+            const sourceFile = source.originFileObj
+            const targetFile = target.originFileObj
+
+            const sourceFileContent = await sourceFile.text()
+            const targetFileContent = await targetFile.text()
+
+            const parsedSource = await parseCsvToJson(sourceFileContent)
+            const parsedTarget = await parseCsvToJson(targetFileContent)
+
+            const details = {
+                source: parsedSource,
+                target: parsedTarget
+            }
+
+            const response = await fetch('/api/upload', {
+                method: 'POST',
+                body: JSON.stringify(details)
+            })
+
+            const data = await response.json()
+
+            console.log("✅ Detials Here ✅", {
+                data
+            })
+
+        } catch (error: any) {
+            console.error("Hanldle error here", error)
+        }
+    }
+
 
     useEffect(() => {
         if (sourceFile && targetFile) {
             setIsReconcilling(true)
-            console.log("Detials Here", {
-                sourceFile,
-                targetFile
+
+            sendFiles({
+                source: sourceFile,
+                target: targetFile
             })
         }
     }, [sourceFile, targetFile])
