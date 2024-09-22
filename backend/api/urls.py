@@ -1,7 +1,8 @@
-from django.urls import path
+from django.urls import path, include
 
-from .views import api_health_check
+from .views import reconcile_records
 
 urlpatterns = [
-    path('', api_health_check)
+    path('reconcile', reconcile_records),
+    path('api-auth/', include('rest_framework.urls', namespace='rest_framework_auth'))
 ]

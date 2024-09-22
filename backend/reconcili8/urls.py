@@ -3,6 +3,7 @@ URL configuration for reconcili8 project.
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/5.1/topics/http/urls/
+    https://stackoverflow.com/questions/42754485/how-to-use-postman-to-authenticate-to-django-rest-framework
 Examples:
 Function views
     1. Add an import:  from my_app import views
@@ -17,7 +18,17 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
+from rest_framework import routers
+
+from api import views
+
+router = routers.DefaultRouter()
+router.register(r'users', views.UserViewSet)
+router.register(r'groups', views.GroupViewSet)
+
 urlpatterns = [
+    path('', include(router.urls)),
     path("admin/", admin.site.urls),
-    path("api/", include("api.urls"))
+    path("api/", include("api.urls")),
+    path('api-auth/', include('rest_framework.urls', namespace='rest_framework'))
 ]
