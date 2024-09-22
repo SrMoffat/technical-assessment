@@ -5,9 +5,13 @@ from api.models import RecordEntry, FileUpload, Reconciliation
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
+    reconciliations = serializers.PrimaryKeyRelatedField(
+        many=True, queryset=Reconciliation.objects.all())
+
     class Meta:
         model = User
-        fields = ['url', 'username', 'email', 'groups']
+        fields = ['id', 'url', 'username',
+                  'email', 'groups', 'reconciliations']
 
 
 class GroupSerializer(serializers.HyperlinkedModelSerializer):
