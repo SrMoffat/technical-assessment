@@ -1,8 +1,8 @@
 from django.urls import path, include
 
-from .views import reconcile_records
+from .views import ReconcileViewSet
 
 urlpatterns = [
-    path('reconcile', reconcile_records),
+    path('reconcile', ReconcileViewSet.as_view()),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework_auth'))
 ]
