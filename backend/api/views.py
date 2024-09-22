@@ -1,10 +1,36 @@
-from rest_framework.response import Response
-from rest_framework.decorators import api_view
-import json
-from django.contrib.auth.models import User, Group
-from rest_framework import permissions, viewsets
+from rest_framework import permissions, viewsets, mixins, generics
 
-from api.serializers import GroupSerializer, UserSerializer
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
+from django.contrib.auth.models import User, Group
+from django.http import Http404
+
+from api.serializers import GroupSerializer, UserSerializer, FileUploadSerializer, ReconciliationSerializer, RecordEntrySerializer
+from api.models import FileUpload, Reconciliation, RecordEntry
+
+
+class ReconcileViewSet(
+        mixins.ListModelMixin,
+        mixins.CreateModelMixin,
+        generics.GenericAPIView):
+    """
+    Endpoint to start the reconciliation process or get reconciliations.
+
+    It takes in a JSON object with {source, target} each with JSON data and file metadata
+    """
+    queryset = Reconciliation.objects.all()
+    serializer_class = ReconciliationSerializer
+
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        # return self.create(request, *args, **kwargs)
+        print("request", request)
+        return Response({
+            "message": "Working on it"
+        })
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -23,10 +49,3 @@ class GroupViewSet(viewsets.ModelViewSet):
     queryset = Group.objects.all().order_by('name')
     serializer_class = GroupSerializer
     permission_classes = [permissions.IsAuthenticated]
-
-
-@api_view(["POST"])
-def reconcile_records(request, *args, **kwargs):
-    body = request.body
-    print("Details", body)
-    return Response(body)
