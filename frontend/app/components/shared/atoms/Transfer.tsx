@@ -1,3 +1,5 @@
+"use client"
+
 import type { TableColumnsType, TransferProps } from 'antd';
 import { Tag, Transfer } from "antd";
 import { useState } from "react";
