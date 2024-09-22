@@ -10,6 +10,12 @@ import { parseCsvToJson } from '../utils';
 
 const { Content } = Layout;
 
+message.config({
+    maxCount: 1,
+    duration: 8
+
+})
+
 function ProfileDetails() {
     return (
         <Flex className="flex-col gap-2">
@@ -38,6 +44,8 @@ function Dashboard() {
     const [targetData, setTargetData] = useState<any[]>([])
 
 
+
+
     const handleSourceFile = async (details: any) => {
         try {
             const file = details?.file
@@ -64,29 +72,54 @@ function Dashboard() {
     }
 
     const checkHeadersMatch = ({ source, target }: { source: any; target: any }) => {
-        const normalisedSourceColumns = source.map((entry: any) => entry?.toLowerCase()).slice().sort()
-        const normalisedTargetColumns = target.map((entry: any) => entry?.toLowerCase()).slice().sort()
+        try {
+            const normalisedSourceColumns = source.map((entry: any) => entry?.toLowerCase()).slice().sort()
+            const normalisedTargetColumns = target.map((entry: any) => entry?.toLowerCase()).slice().sort()
 
-        const sameLength = source.length === target.length
-        const sameContent = normalisedSourceColumns.every((key: any) => normalisedTargetColumns.includes(key));
+            const sameLength = normalisedSourceColumns.length === normalisedTargetColumns.length
 
-        return {
-            result: sameContent && sameLength,
-            sameContent,
-            sameLength
+            if (!sameLength) {
+                const message = `Source file has ${normalisedSourceColumns.length} columns but Target file has ${normalisedTargetColumns.length} columns.`
+                throw new Error(message)
+            }
+            const sameContent = normalisedSourceColumns.every((key: any) => normalisedTargetColumns.includes(key));
+
+            if (!sameContent) {
+                const message = 'Source columns and Target columns are irreconcilable.'
+                throw new Error(message)
+            }
+
+            return true
+        } catch (error: any) {
+            message.error({
+                content: error?.message,
+            })
         }
     }
 
     const checkFilesHaveIdColumn = ({ source, target }: { source: any; target: any }) => {
-        const sourceHasId = source?.find((entry: any) => entry.toLowerCase() === 'id')
-        const targetHasId = target?.find((entry: any) => entry.toLowerCase() === 'id')
+        try {
+            const searchField = 'id'
 
-        const hasIds = sourceHasId && targetHasId
+            const sourceHasId = source?.find((entry: any) => entry.toLowerCase() === searchField)
+            const targetHasId = target?.find((entry: any) => entry.toLowerCase() === searchField)
 
-        return {
-            result: hasIds,
-            sourceHasId,
-            targetHasId
+            const hasIds = sourceHasId && targetHasId
+
+            if (!hasIds) {
+                const type = sourceHasId
+                    ? 'target'
+                    : targetHasId
+                        ? 'source'
+                        : 'uploaded'
+                const errorMessage = `No "ID" column found in ${type} records`
+                throw new Error(errorMessage)
+            }
+            return hasIds
+        } catch (error: any) {
+            message.error({
+                content: error?.message,
+            })
         }
     }
 
@@ -106,6 +139,27 @@ function Dashboard() {
         }
     }
 
+    const validateHeaders = ({ source, target }: { source: any; target: any }) => {
+        // Validate each file has an ID column
+        const hasIds = checkFilesHaveIdColumn({
+            source,
+            target
+        })
+
+        if (hasIds) {
+            // Validate each file has similar headers/columns
+            const columnsAreValid = checkHeadersMatch({
+                source,
+                target
+            })
+
+            console.log(" 👽columnsAreValid 👽", columnsAreValid)
+            return columnsAreValid
+        }
+
+        return false
+    }
+
     const sendFiles = async ({ target, source }: { target: any; source: any }) => {
         try {
             const sourceFile = source.originFileObj
@@ -120,67 +174,28 @@ function Dashboard() {
                 target: targetFileContent
             })
 
-            // Validate each file has an ID column
-            const { result: hasIds, sourceHasId, targetHasId } = checkFilesHaveIdColumn({
+            const hasValidHeaders = validateHeaders({
                 source: sourceColumns,
                 target: targetColumns
             })
 
-            // Validate each file has similar headers/columns
-            if (hasIds) {
-                console.log("📭 IDs Included 📭", {
-                    sourceHasId,
-                    targetHasId
-                })
 
-                // Check if columns match
-                const { result: headersMatch, sameContent, sameLength } = checkHeadersMatch({
-                    source: sourceColumns,
-                    target: targetColumns
-                })
-
-                if (headersMatch){
-                    // Process the files i.e. send them to Next backend to sent to DRF backend
-                    const parsedSource = await parseCsvToJson(sourceFileContent)
-                    const parsedTarget = await parseCsvToJson(targetFileContent)
-
-
-                    // Ensure both source and target have the same kind of data i.e. same columns
-
-                    const details = {
-                        source: parsedSource,
-                        target: parsedTarget
-                    }
-
-                    const response = await fetch('/api/upload', {
-                        method: 'POST',
-                        body: JSON.stringify(details)
+            if (hasValidHeaders) {
+                const response = await fetch('/api/upload', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        source: sourceFileContent,
+                        target: targetFileContent
                     })
-
-                    const data = await response.json()
-
-                    console.log("✅ Detials Here ✅", {
-                        data
-                    })
-                } else {
-                    // Throw an error: Columns do not match maybe ignore some of them? Show differences?
-                    message.error('Mismatched columns! Records have irreconcilable data sets.')
-
-                }
-            } else {
-                // Throw an error: One or both files is missing an ID column and we rely on that as a unique identifier
-                const onlySourceHasId = sourceHasId && !targetHasId
-                const onlyTargetHasId = targetHasId && !sourceHasId
-
-                console.log("Files are different so fail validation", {
-                    hasIds,
-                    onlySourceHasId,
-                    onlyTargetHasId,
-                    sourceHasId,
-                    targetHasId
                 })
-                message.error('Uploaded records missing a required column "ID"')
+
+                const data = await response.json()
+
+                console.log("✅ Detials Here ✅", {
+                    data
+                })
             }
+
         } catch (error: any) {
             console.error("Hanldle error here", error)
         }

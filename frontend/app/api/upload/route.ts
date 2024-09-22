@@ -22,24 +22,50 @@ handlePost
         // To Do: make call to DRF upload endpoint
         const data = await req.json()
 
-        const { source, target } = data
+        console.log("👽 Detials Here 👽", {
+            data
+        })
 
-        if (!source || !target) {
-            return new NextResponse(JSON.stringify({ error: 'Both source and target files are required.' }), {
-                status: 400,
-                headers: { 'Content-Type': 'application/json' },
-            });
-        }
+        // Clean data up so we can remove any commas in each of the values e.g name or amount
 
-        // Normalise data i.e lowecase all keys, parse dates into ISO dates, trim leading and trailing whitespaces
-        const normalisedSource = normaliseData(source)
-        const normalisedTarget = normaliseData(target)
+        // // Process the files i.e. send them to Next backend to normalise and send to DRF backend
+        // const parsedSource = await parseCsvToJson(sourceFileContent)
+        // // const parsedTarget = await parseCsvToJson(targetFileContent)
 
-        return {
-            success: true,
-            source: normalisedSource,
-            target: normalisedTarget,
-        }
+        // console.log("Data here ===>", {
+        //     sourceFileContent,
+        //     parsedSource,
+        // })
+
+        // const details = {
+        //     source: {
+        //         fileName: sourceFile?.name,
+        //         data: parsedSource
+        //     },
+        //     target: {
+        //         fileName: targetFile?.name,
+        //         data: parsedTarget
+        //     }
+        // }
+
+        // const { source, target } = data
+
+        // if (!source || !target) {
+        //     return new NextResponse(JSON.stringify({ error: 'Both source and target files are required.' }), {
+        //         status: 400,
+        //         headers: { 'Content-Type': 'application/json' },
+        //     });
+        // }
+
+        // // Normalise data i.e lowecase all keys, parse dates into ISO dates, trim leading and trailing whitespaces
+        // const normalisedSource = normaliseData(source)
+        // const normalisedTarget = normaliseData(target)
+
+        // return {
+        //     success: true,
+        //     source: normalisedSource,
+        //     target: normalisedTarget,
+        // }
     })
 
 export async function POST(request: NextRequest, ctx: RequestContext) {
@@ -51,27 +77,27 @@ export async function POST(request: NextRequest, ctx: RequestContext) {
             target,
         })
 
-        if (response.success) {
+        // if (response.success) {
 
-            const backendResponse = await fetch(`${BACKEND_SERVER_URL}/reconcile`, {
-                method: 'POST',
-                body: JSON.stringify({
+        //     const backendResponse = await fetch(`${BACKEND_SERVER_URL}/reconcile`, {
+        //         method: 'POST',
+        //         body: JSON.stringify({
 
-                })
-            })
+        //         })
+        //     })
 
-            const backendData = await backendResponse.json()
+        //     const backendData = await backendResponse.json()
 
-            console.log("👽 Python Response 👽", backendData)
+        //     console.log("👽 Python Response 👽", backendData)
 
-            return NextResponse.json({
-                message: 'To Do: Send to python backend'
-            });
-        } else {
-            return NextResponse.json({
-                message: 'Failed to normalize or validate?'
-            });
-        }
+        //     return NextResponse.json({
+        //         message: 'To Do: Send to python backend'
+        //     });
+        // } else {
+        //     return NextResponse.json({
+        //         message: 'Failed to normalize or validate?'
+        //     });
+        // }
     } catch (error: any) {
         // TODO: Better error handling
         console.log("Error here ❌", error)

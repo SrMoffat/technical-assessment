@@ -1,6 +1,8 @@
 import { parse } from 'csv-parse';
 import { message } from 'antd';
 
+const testString = "ID,Name,Date,Amount\n001,John Doe,2023-01-01,100.00\n002,Jane Smith,2023-01-04,200.50\n004,Emily White,2023-01-05,400.90\n"
+
 const BACKEND_SERVER_URL = 'http://localhost:8000/api'
 
 export function capitalizeFirstLetter(value: string) {
@@ -9,7 +11,7 @@ export function capitalizeFirstLetter(value: string) {
 
 export async function parseCsvToJson(fileContent: any) {
     const parsed = await new Promise((resolve, reject) => {
-        parse(fileContent, { columns: true, trim: true }, (err, data) => {
+        parse(testString, { columns: true, trim: true }, (err, data) => {
             if (err) {
                 message.error('Error parsing file!');
                 return reject(err);
