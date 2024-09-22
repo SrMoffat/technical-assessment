@@ -63,6 +63,49 @@ function Dashboard() {
         }
     }
 
+    const checkHeadersMatch = ({ source, target }: { source: any; target: any }) => {
+        const normalisedSourceColumns = source.map((entry: any) => entry?.toLowerCase()).slice().sort()
+        const normalisedTargetColumns = target.map((entry: any) => entry?.toLowerCase()).slice().sort()
+
+        const sameLength = source.length === target.length
+        const sameContent = normalisedSourceColumns.every((key: any) => normalisedTargetColumns.includes(key));
+
+        return {
+            result: sameContent && sameLength,
+            sameContent,
+            sameLength
+        }
+    }
+
+    const checkFilesHaveIdColumn = ({ source, target }: { source: any; target: any }) => {
+        const sourceHasId = source?.find((entry: any) => entry.toLowerCase() === 'id')
+        const targetHasId = target?.find((entry: any) => entry.toLowerCase() === 'id')
+
+        const hasIds = sourceHasId && targetHasId
+
+        return {
+            result: hasIds,
+            sourceHasId,
+            targetHasId
+        }
+    }
+
+    const getFileHeaders = ({ source, target }: { source: any; target: any }) => {
+        const sourceSegments = source?.split("\n")
+        const targetSegments = target?.split("\n")
+
+        const sourceHeaders = sourceSegments[0]
+        const targetHeaders = targetSegments[0]
+
+        const sourceColumns = sourceHeaders?.split(",")
+        const targetColumns = targetHeaders?.split(",")
+
+        return {
+            sourceColumns,
+            targetColumns
+        }
+    }
+
     const sendFiles = async ({ target, source }: { target: any; source: any }) => {
         try {
             const sourceFile = source.originFileObj
@@ -71,25 +114,73 @@ function Dashboard() {
             const sourceFileContent = await sourceFile.text()
             const targetFileContent = await targetFile.text()
 
-            const parsedSource = await parseCsvToJson(sourceFileContent)
-            const parsedTarget = await parseCsvToJson(targetFileContent)
+            // Get file headers/columns
+            const { sourceColumns, targetColumns } = getFileHeaders({
+                source: sourceFileContent,
+                target: targetFileContent
+            })
 
-            const details = {
-                source: parsedSource,
-                target: parsedTarget
+            // Validate each file has an ID column
+            const { result: hasIds, sourceHasId, targetHasId } = checkFilesHaveIdColumn({
+                source: sourceColumns,
+                target: targetColumns
+            })
+
+            // Validate each file has similar headers/columns
+            if (hasIds) {
+                console.log("📭 IDs Included 📭", {
+                    sourceHasId,
+                    targetHasId
+                })
+
+                // Check if columns match
+                const { result: headersMatch, sameContent, sameLength } = checkHeadersMatch({
+                    source: sourceColumns,
+                    target: targetColumns
+                })
+
+                if (headersMatch){
+                    // Process the files i.e. send them to Next backend to sent to DRF backend
+                    const parsedSource = await parseCsvToJson(sourceFileContent)
+                    const parsedTarget = await parseCsvToJson(targetFileContent)
+
+
+                    // Ensure both source and target have the same kind of data i.e. same columns
+
+                    const details = {
+                        source: parsedSource,
+                        target: parsedTarget
+                    }
+
+                    const response = await fetch('/api/upload', {
+                        method: 'POST',
+                        body: JSON.stringify(details)
+                    })
+
+                    const data = await response.json()
+
+                    console.log("✅ Detials Here ✅", {
+                        data
+                    })
+                } else {
+                    // Throw an error: Columns do not match maybe ignore some of them? Show differences?
+                    message.error('Mismatched columns! Records have irreconcilable data sets.')
+
+                }
+            } else {
+                // Throw an error: One or both files is missing an ID column and we rely on that as a unique identifier
+                const onlySourceHasId = sourceHasId && !targetHasId
+                const onlyTargetHasId = targetHasId && !sourceHasId
+
+                console.log("Files are different so fail validation", {
+                    hasIds,
+                    onlySourceHasId,
+                    onlyTargetHasId,
+                    sourceHasId,
+                    targetHasId
+                })
+                message.error('Uploaded records missing a required column "ID"')
             }
-
-            const response = await fetch('/api/upload', {
-                method: 'POST',
-                body: JSON.stringify(details)
-            })
-
-            const data = await response.json()
-
-            console.log("✅ Detials Here ✅", {
-                data
-            })
-
         } catch (error: any) {
             console.error("Hanldle error here", error)
         }
