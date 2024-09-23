@@ -5,8 +5,9 @@ export type TransferItem = GetProp<TransferProps, 'dataSource'>[number];
 
 type TableRowSelection<T extends object> = TableProps<T>['rowSelection'];
 
-export default function CustomTable(props: any){
+export default function CustomTable(props: any) {
     const {
+        targetKeys,
         direction,
         leftColumns,
         rightColumns,

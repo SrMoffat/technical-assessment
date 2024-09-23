@@ -3,8 +3,10 @@ import { CustomTransfer } from '@/app/components/shared/atoms';
 import { FileUploader, NavigationTabs } from '@/app/components/specific/dashboard';
 import { useReconciliationContext } from '@/app/providers/ReconciliationProvider';
 import { getFileHeaders, mergeDataWithReconciliationResults, parseFiles, validateHeaders } from '@/app/utils';
-import { Alert, Flex, Spin, Tag, message } from 'antd';
+import { WarningFilled, InfoCircleFilled } from "@ant-design/icons";
+import { Alert, Flex, Spin, Tooltip, Tag, message, theme } from 'antd';
 import { useEffect, useState } from 'react';
+
 
 message.config({
     maxCount: 1,
@@ -12,6 +14,11 @@ message.config({
 })
 
 export default function Dashboard() {
+    const { token: {
+        colorError,
+        colorInfo
+    } } = theme.useToken()
+
     const [sourceFile, setSourceFile] = useState<any>()
     const [targetFile, setTargetFile] = useState<any>()
     const [tableColumns, setTableColumns] = useState<any[]>([
@@ -31,7 +38,8 @@ export default function Dashboard() {
             dataIndex: 'amount',
             title: 'Amount',
             render: (amount: string) => (
-                <Tag style={{ marginInlineEnd: 0 }} color="cyan">
+
+                <Tag style={{ marginInlineEnd: 0, }} color="cyan">
                     {amount}
                 </Tag>
             ),
@@ -41,7 +49,11 @@ export default function Dashboard() {
             title: '',
             render: (isMissing: boolean) => {
                 return isMissing
-                    ? <Alert message="Missing match." type="warning" showIcon />
+                    ? (
+                        <Tooltip title="This entry is not found in the other records" color={colorError} key="isMissing">
+                            <WarningFilled style={{ color: colorError }} />
+                        </Tooltip>
+                    )
                     : undefined
             }
         },
@@ -50,7 +62,11 @@ export default function Dashboard() {
             title: '',
             render: (hasDiscrepancy: boolean) => {
                 return hasDiscrepancy
-                    ? <Alert message="Has discrepancy." type="warning" showIcon />
+                    ? (
+                        <Tooltip title="There is data mismatch on this entry." color={colorInfo} key="hasDiscrepancy">
+                            <InfoCircleFilled style={{ color: colorInfo }} />
+                        </Tooltip>
+                    )
                     : undefined
             }
         },
@@ -79,6 +95,9 @@ export default function Dashboard() {
             setSourceFile(file)
             const fileStatus = file?.status
 
+            console.log("aaafileStatus", fileStatus)
+
+
         } catch (error: any) {
             console.log("Error Uploading file source", error)
 
@@ -91,6 +110,8 @@ export default function Dashboard() {
             const fileStatus = file?.status
 
             setTargetFile(file)
+            console.log("ddddfileStatus", fileStatus)
+
 
         } catch (error: any) {
             console.log("Error Uploading file target", error)

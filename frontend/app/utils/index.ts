@@ -44,8 +44,6 @@ export function lowerCaseKeysAndIsoDates(entry: any) {
 
             const isDateString = dateRegex.test(value)
 
-            console.log("Date Regex", isDateString)
-
             result = {
                 // To Do: Make more robust by checking formating e.g. DD/MM/YYYY vs YYYY/MM/DD or MM/DD/YY
                 [newKey]: new Date(entry[key])
@@ -54,8 +52,6 @@ export function lowerCaseKeysAndIsoDates(entry: any) {
             const value = entry[key]
             const intOrFloatRegex = /^-?\d{1,3}(,\d{3})*(\.\d+)?$/ // Checks for commas e.g 1,000  // ^-?\d+(\.\d+)?$ 
             const isIntOrFloat = intOrFloatRegex.test(value)
-
-            console.log("Number Regex", isIntOrFloat)
 
             result = {
                 // Also trim white spaces
@@ -90,14 +86,9 @@ export async function sendRecordsForReconciliation({ source, target }: { source:
             'Content-Type': 'application/json'
         },
         body: JSON.stringify({ source, target })
-        // body: JSON.stringify({ source, target })
     })
 
     const data = await response.json()
-
-    console.log("python responded with", {
-        data
-    })
 
     return data
 }

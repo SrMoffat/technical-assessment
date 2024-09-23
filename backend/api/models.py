@@ -5,6 +5,13 @@ reconciliation_job_statuses = [(
     'pending', 'Pending'), ('completed', 'Completed'), ('failed', 'Failed')]
 
 
+class FileUpload(models.Model):
+    file_name = models.CharField(max_length=255)
+    file_type = models.CharField(
+        choices=reconciliation_file_types, max_length=100)
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+
 class RecordEntry(models.Model):
     external_id = models.CharField(max_length=255)
     type = models.CharField(
@@ -14,19 +21,11 @@ class RecordEntry(models.Model):
     date = models.CharField(max_length=255)
     amount = models.DecimalField(max_digits=15, decimal_places=2)
     created_at = models.DateTimeField(auto_now_add=True)
+    upload = models.ForeignKey(
+        FileUpload, related_name='records', on_delete=models.CASCADE)
 
     class Meta:
         ordering = ['created_at']
-
-
-class FileUpload(models.Model):
-    file_name = models.CharField(max_length=255)
-    file_type = models.CharField(
-        choices=reconciliation_file_types, max_length=100)
-    uploaded_at = models.DateTimeField(auto_now_add=True)
-    records = models.ForeignKey(
-        RecordEntry, related_name='entries', on_delete=models.CASCADE)
-
 
 class Reconciliation(models.Model):
     source_file = models.ForeignKey(

@@ -54,6 +54,7 @@ export default function TableTransfer(props: TableTransferProps) {
             }) => {
                 return (
                     <CustomTable
+                        targetKeys={targetKeys}
                         direction={direction}
                         leftColumns={headers}
                         rightColumns={headers}

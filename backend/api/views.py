@@ -1,13 +1,13 @@
 from rest_framework import permissions, viewsets, mixins, generics
-
 from rest_framework.response import Response
-from rest_framework.views import APIView
 
 from django.contrib.auth.models import User, Group
-from django.http import Http404
 
-from api.serializers import GroupSerializer, UserSerializer, FileUploadSerializer, ReconciliationSerializer, RecordEntrySerializer
-from api.models import FileUpload, Reconciliation, RecordEntry
+from api.serializers import GroupSerializer, UserSerializer, ReconciliationSerializer
+from api.models import Reconciliation
+from api.reconciler import Reconciler
+
+reconciler_instance = Reconciler()
 
 
 class ReconcileViewSet(
@@ -27,9 +27,42 @@ class ReconcileViewSet(
 
     def post(self, request, *args, **kwargs):
         # return self.create(request, *args, **kwargs)
-        print("request", request)
+        source_label = "source"
+        target_label = "target"
+
+        data = request.data
+
+        source_data = data[source_label]
+        target_data = data[target_label]
+
+        source_records = source_data['data']
+        target_records = target_data['data']
+
+        # find in source but not in target and discrepancies
+        reconciler_instance.reconcile(
+            source_records,
+            target_records
+        )
+        results = {
+            "missing_in_source": reconciler_instance.missing_in_source,
+            "missing_in_target": reconciler_instance.missing_in_target,
+            "discrepancies": reconciler_instance.discrepancies
+        }
+
+        # create source and target files in DB
+        source_upload = reconciler_instance.record_file_upload(
+            source_data, source_label)
+        target_upload = reconciler_instance.record_file_upload(
+            target_data, target_label)
+
+        created_reconciliation = reconciler_instance.record_reconciliation_results(
+            source_upload, target_upload)
+
+        reconciliation = ReconciliationSerializer(created_reconciliation)
+
         return Response({
-            "message": "Working on it"
+            "reconciliation": reconciliation.data,
+            "results": results
         })
 
 
