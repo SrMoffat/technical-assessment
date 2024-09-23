@@ -1,31 +1,21 @@
 "use client"
 
-import type { TableColumnsType, TransferProps } from 'antd';
-import { Tag, Transfer } from "antd";
-import { useState } from "react";
+import type { TransferProps } from 'antd';
+import { Transfer } from "antd";
+import { useEffect, useState } from "react";
 import CustomTable, { TransferItem } from "./Table";
-
-const mockTags = ['cat', 'dog', 'bird'];
-
-// @ts-ignore
-const mockData = Array.from({ length: 20 }).map<DataType>((_, i) => ({
-    key: i.toString(),
-    title: `content${i + 1}`,
-    description: `description of content${i + 1}`,
-    tag: mockTags[i % 3],
-}));
-
 
 interface DataType {
     key: string;
-    title: string;
-    description: string;
-    tag: string;
+    name: string;
+    amount: string;
 }
 
 
 interface TableTransferProps extends TransferProps<TransferItem> {
-    data: any;
+    headers: any;
+    leftColumns: any;
+    rightColumns: any;
 }
 
 export default function TableTransfer(props: TableTransferProps) {
@@ -36,34 +26,21 @@ export default function TableTransfer(props: TableTransferProps) {
     };
 
     const filterOption = (input: string, item: DataType) =>
-        item.title?.includes(input) || item.tag?.includes(input);
+        item.name?.includes(input) || item.amount?.includes(input);
 
+    const { leftColumns, rightColumns, headers, dataSource, ...restProps } = props;
 
-    const columns: TableColumnsType<DataType> = [
-        {
-            dataIndex: 'title',
-            title: 'Name',
-        },
-        {
-            dataIndex: 'tag',
-            title: 'Tag',
-            render: (tag: string) => (
-                <Tag style={{ marginInlineEnd: 0 }} color="cyan">
-                    {tag.toUpperCase()}
-                </Tag>
-            ),
-        },
-        {
-            dataIndex: 'description',
-            title: 'Description',
-        },
-    ];
+    useEffect(() => {
+        const targetKeys = dataSource?.filter(item => item.type === "target")
+            .map(item => item.key);
 
-    const { data, ...restProps } = props;
+        setTargetKeys(targetKeys)
+    }, [dataSource])
     return (
         <Transfer style={{ width: '100%' }} {...restProps}
+            // status="error" // "warning"
             onChange={onChange}
-            dataSource={data}
+            dataSource={dataSource}
             targetKeys={targetKeys}
             filterOption={filterOption}
         >
@@ -78,8 +55,8 @@ export default function TableTransfer(props: TableTransferProps) {
                 return (
                     <CustomTable
                         direction={direction}
-                        leftColumns={columns}
-                        rightColumns={columns}
+                        leftColumns={headers}
+                        rightColumns={headers}
                         listDisabled={listDisabled}
                         onItemSelect={onItemSelect}
                         filteredItems={filteredItems}
