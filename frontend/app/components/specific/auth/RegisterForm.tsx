@@ -77,7 +77,7 @@ export default
                 </Form.Item>
             ))}
             <Form.Item>
-                <Flex justify="space-between" align="center">
+                <Flex className='w-full' justify="space-between" align="center">
                     <Form.Item name="terms" valuePropName="checked" noStyle>
                         <Checkbox>Accept terms and conditions.</Checkbox>
                     </Form.Item>

@@ -2,7 +2,7 @@
 
 import { AreaChartOutlined, LogoutOutlined, UserOutlined } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
-import { Layout, Menu, message, theme } from 'antd';
+import { Layout, Menu, theme } from 'antd';
 
 const { Sider } = Layout;
 
@@ -35,12 +35,6 @@ export default function SideBar(props: any) {
     const onClick: MenuProps['onClick'] = ({ key }) => {
         const isLogout = key === "logout"
         setCurrent(key)
-
-        if (isLogout) {
-            message.error(`Click on item ${key}`);
-        } else {
-            message.info(`Click on item ${key}`);
-        }
     };
     return (
         <Sider className="rounded-md px-4" width={300} style={{ background: colorBgContainer }}>

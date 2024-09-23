@@ -1,3 +1,5 @@
+"use client"
+
 import { CustomLink, LogoWordComponent } from "@/app/components/shared/atoms";
 import { Button } from "antd"
 

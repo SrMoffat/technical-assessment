@@ -1,3 +1,5 @@
+"use client"
+
 import { LogoWord } from "@/app/components/shared/atoms/Icon";
 import Image from "next/image";
 

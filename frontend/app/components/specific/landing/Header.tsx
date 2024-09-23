@@ -1,3 +1,5 @@
+"use client"
+
 import { LandingPageNavBar, LandingPageHero, LandingPageHeroAction } from "@/app/components/specific/landing"
 
 export default function LandingPageHeader(props: any) {

@@ -18,12 +18,6 @@ export default function NavBar() {
     const onClick: MenuProps['onClick'] = ({ key }) => {
         const isLogout = key === "logout"
         setCurrent(key)
-
-        if (isLogout) {
-            message.error(`Click on item ${key}`);
-        } else {
-            message.info(`Click on item ${key}`);
-        }
     };
 
     const profileDropdownItems: MenuProps['items'] = [

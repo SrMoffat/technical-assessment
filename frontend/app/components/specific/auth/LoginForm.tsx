@@ -58,7 +58,7 @@ export default function LoginForm() {
                 </Form.Item>
             ))}
             <Form.Item>
-                <Flex justify="space-between" align="center">
+                <Flex  justify="space-between" align="center">
                     <Form.Item name="rememberMe" valuePropName="checked" noStyle>
                         <Checkbox>Remember me?.</Checkbox>
                     </Form.Item>
