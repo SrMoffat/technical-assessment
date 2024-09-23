@@ -1,8 +1,6 @@
 import { parse } from 'csv-parse';
 import { message } from 'antd';
 
-const testString = "ID,Name,Date,Amount\n001,John Doe,2023-01-01,100.00\n002,Jane Smith,2023-01-04,200.50\n004,Emily White,2023-01-05,400.90\n"
-
 const BACKEND_SERVER_URL = 'http://localhost:8000/api'
 
 export function capitalizeFirstLetter(value: string) {
@@ -10,10 +8,18 @@ export function capitalizeFirstLetter(value: string) {
 }
 
 export async function parseCsvToJson(fileContent: any) {
+    const sanitisedData = fileContent
+        .split("\n")
+        .filter((n: string) => n)
+        .join("\n")
+
     const parsed = await new Promise((resolve, reject) => {
-        parse(testString, { columns: true, trim: true }, (err, data) => {
+        parse(sanitisedData, { columns: true, trim: true }, (err, data) => {
             if (err) {
-                message.error('Error parsing file!');
+                message.error({
+                    content: 'Error parsing file!',
+                    duration: 8
+                });
                 return reject(err);
             }
             resolve(data);
@@ -22,7 +28,6 @@ export async function parseCsvToJson(fileContent: any) {
 
     return parsed
 }
-
 
 export function lowerCaseKeysAndIsoDates(entry: any) {
     let newObj = {}
@@ -66,7 +71,6 @@ export function lowerCaseKeysAndIsoDates(entry: any) {
     return newObj
 }
 
-
 export function normaliseData(entries: any) {
     const results = []
 
@@ -78,16 +82,166 @@ export function normaliseData(entries: any) {
     return results
 }
 
-
 export async function sendRecordsForReconciliation({ source, target }: { source: any; target: any }) {
-    const response = await fetch(BACKEND_SERVER_URL, {
+    const response = await fetch(`${BACKEND_SERVER_URL}/reconcile`, {
         method: 'POST',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        },
         body: JSON.stringify({ source, target })
+        // body: JSON.stringify({ source, target })
     })
 
     const data = await response.json()
 
-    console.log("python responded with", data)
+    console.log("python responded with", {
+        data
+    })
 
     return data
 }
+
+export async function parseFiles({ source, target }: { source: any; target: any }) {
+    const parsedSource = await parseCsvToJson(source)
+    const parsedTarget = await parseCsvToJson(target)
+    return {
+        source: parsedSource,
+        target: parsedTarget
+    }
+}
+
+export function checkHeadersMatch({ source, target }: { source: any; target: any }) {
+    try {
+        const normalisedSourceColumns = source.map((entry: any) => entry?.toLowerCase()).slice().sort()
+        const normalisedTargetColumns = target.map((entry: any) => entry?.toLowerCase()).slice().sort()
+
+        const sameLength = normalisedSourceColumns.length === normalisedTargetColumns.length
+
+        if (!sameLength) {
+            const message = `Source file has ${normalisedSourceColumns.length} columns but Target file has ${normalisedTargetColumns.length} columns.`
+            throw new Error(message)
+        }
+        const sameContent = normalisedSourceColumns.every((key: any) => normalisedTargetColumns.includes(key));
+
+        if (!sameContent) {
+            const message = 'Source columns and Target columns are irreconcilable.'
+            throw new Error(message)
+        }
+
+        return true
+    } catch (error: any) {
+        message.error({
+            content: error?.message,
+        })
+    }
+}
+
+export function checkFilesHaveIdColumn({ source, target }: { source: any; target: any }) {
+    try {
+        const searchField = 'id'
+
+        const sourceHasId = source?.find((entry: any) => entry.toLowerCase() === searchField)
+        const targetHasId = target?.find((entry: any) => entry.toLowerCase() === searchField)
+
+        const hasIds = sourceHasId && targetHasId
+
+        if (!hasIds) {
+            const type = sourceHasId
+                ? 'target'
+                : targetHasId
+                    ? 'source'
+                    : 'uploaded'
+            const errorMessage = `No "ID" column found in ${type} records`
+            throw new Error(errorMessage)
+        }
+        return hasIds
+    } catch (error: any) {
+        message.error({
+            content: error?.message,
+        })
+    }
+}
+
+export function getFileHeaders({ source, target }: { source: any; target: any }) {
+    const sourceSegments = source?.split("\n")
+    const targetSegments = target?.split("\n")
+
+    const sourceHeaders = sourceSegments[0]
+    const targetHeaders = targetSegments[0]
+
+    const sourceColumns = sourceHeaders?.split(",")
+    const targetColumns = targetHeaders?.split(",")
+
+    return {
+        sourceColumns,
+        targetColumns
+    }
+}
+
+export function validateHeaders({ source, target }: { source: any; target: any }) {
+    // Validate each file has an ID column
+    const hasIds = checkFilesHaveIdColumn({
+        source,
+        target
+    })
+
+    if (hasIds) {
+        // Validate each file has similar headers/columns
+        const columnsAreValid = checkHeadersMatch({
+            source,
+            target
+        })
+
+        return columnsAreValid
+    }
+
+    return false
+}
+
+export function mergeDataWithReconciliationResults(data: any, missing_in_target: any, discrepancies: any, type: string) {
+    let results = []
+
+    for (const entry of data) {
+        const id = entry?.ID
+        const isMissing = missing_in_target?.includes(id)
+
+        let sourceResult = {}
+
+        for (const discrepancy of discrepancies) {
+            const rowId = discrepancy?.[0]
+            const rowHeader = discrepancy?.[1]
+            const sourceData = discrepancy?.[2]
+            const targetData = discrepancy?.[3]
+
+            const hasDiscrepancy = rowId === id
+
+            sourceResult = {
+                key: `${id}-${type}`,
+                id: id,
+                name: entry?.Name,
+                amount: entry?.Amount,
+                date: entry?.Date,
+                isMissing,
+                type,
+                hasDiscrepancy,
+            }
+
+            if (hasDiscrepancy) {
+                sourceResult = {
+                    ...sourceResult,
+                    discrepancy: {
+                        rowHeader,
+                        sourceData,
+                        targetData
+                    }
+                }
+            }
+
+            results.push(sourceResult)
+        }
+    }
+    return results
+
+}
+

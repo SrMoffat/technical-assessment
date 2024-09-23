@@ -25,7 +25,7 @@ const beforeUpload = (file: FileType) => {
     return passesType && passesSize
 };
 
-export default function FileUploader({ title, ctaText, ctaDescription, onChange }: any) {
+export default function FileUploader({ title, ctaText, ctaDescription, onChange, disable }: any) {
     const props: UploadProps = {
         name: 'file',
         multiple: false,
@@ -40,7 +40,7 @@ export default function FileUploader({ title, ctaText, ctaDescription, onChange 
     return (
         <Flex className="w-full flex-col gap-2 mb-6">
             <Typography.Text>{title}</Typography.Text>
-            <Dragger {...props} className="w-full" multiple={false} >
+            <Dragger {...props} className="w-full" multiple={false} disabled={disable}>
                 <p className="ant-upload-drag-icon">
                     <InboxOutlined />
                 </p>
